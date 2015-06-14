@@ -36,10 +36,16 @@ angular.module('almond.controllers', [])
   $scope.doLogin = function() {
 
     var clientId = "664215290683-thjone29b1n8md31t5n4aufbuansum0r.apps.googleusercontent.com";
-    var myUrl =     'https://accounts.google.com/o/oauth2/auth?client_id=' + clientId + '&redirect_uri=http://localhost/callback&scope=https://www.googleapis.com/auth/calendar+profile&response_type=code&access_type=offline&prompt=select_account';
+    var googleOAuthUrl = 'https://accounts.google.com/o/oauth2/auth?client_id=' + clientId + '&redirect_uri=http://localhost/callback&scope=https://www.googleapis.com/auth/calendar+profile&response_type=code&access_type=offline&prompt=select_account';
 
-    var ref = window.open(myUrl, '_blank', 'location=yes');
+    var ref = window.open(googleOAuthUrl, '_blank', 'location=yes');
 
+    if (typeof String.prototype.startsWith != 'function') {
+      String.prototype.startsWith = function (str){
+          return this.indexOf(str) == 0;
+      };
+    }
+    
     ref.addEventListener('loadstart', function(event) {
 
       if ((event.url).startsWith("http://localhost/callback")) {
@@ -51,11 +57,6 @@ angular.module('almond.controllers', [])
           ref.close();
         }
     });
-    if (typeof String.prototype.startsWith != 'function') {
-        String.prototype.startsWith = function (str){
-            return this.indexOf(str) == 0;
-        };
-    }
     // Simulate a login delay. Remove this and replace with your login
     // code if using a login system
     $timeout(function() {
@@ -133,7 +134,7 @@ angular.module('almond.controllers', [])
     getRoutes($http, $rootScope.userLong, $rootScope.userLat, $scope.destination.formatted_address, function(err, data){
 
       if (err) {
-        console.log('error getting routes!');
+        console.log('error getting routes!', err);
         $scope.hideLoading();
         $ionicHistory.goBack();
       } else {
@@ -161,7 +162,7 @@ angular.module('almond.controllers', [])
     console.log("dispatch called on TravelModesCtrl");
     $scope.$on('TravelMode.ReadyforData',function(){
       console.log("broadcasting data from TravelModesCtrl");
-      console.dir(route)
+      // console.dir(route)
       $rootScope.$broadcast('TravelModes.Data', route);
     })
   }
