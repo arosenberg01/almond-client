@@ -178,11 +178,10 @@ angular.module('almond.controllers', [])
 
 })
 
-.controller('StartCtrl', function($scope, $rootScope, destinationService, $http, $ionicUser, $ionicPush, Auth, AuthToken, pushService, $location, $cordovaSplashscreen) {
+.controller('StartCtrl', function($scope, $rootScope, destinationService, $http, Auth, AuthToken, $location, $cordovaSplashscreen) {
   $scope.$on('$ionicView.loaded', function() {
     ionic.Platform.ready( function() {
       if(navigator && navigator.splashscreen) setTimeout(navigator.splashscreen.hide,250);
-      pushService.identifyUser();
     });
   });
 
@@ -245,9 +244,9 @@ angular.module('almond.controllers', [])
     // console.dir(data)
     $scope.data = data;
     console.log("Got data from event")
+    deregister();
   })
   $rootScope.$broadcast('TravelMode.ReadyforData');
-  deregister();
 
 
   $scope.destination = destinationService.get();
@@ -278,6 +277,18 @@ angular.module('almond.controllers', [])
 
 .controller('SettingsCtrl', function($scope, Settings) {
   $scope.settings = Settings.getSettings();
+
+  var firstRun = true;
+
+  $scope.$watch(function() {
+    return $scope.settings;
+  },function(){
+    if(!firstRun) {
+      console.log('wrote settings')
+      Settings.writeSettings($scope.settings);
+    }
+    firstRun = false;
+  },true)
 
 })
 
